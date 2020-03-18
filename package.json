@@ -1,19 +1,17 @@
 {
   "name": "debundle",
-  "private": false,
   "version": "2.0.0",
   "description": "Javascript bundle decompiler",
   "main": "src/index.js",
-  "bin": {
-    "debundle": "src/index.js"
-  },
+  "bin": "src/index.js",
   "repository": "https://github/com/1egoman/debundle",
   "author": "Ryan Gaus",
   "license": "MIT",
   "engines": {
-    "node" : ">=12.0.0"
+    "node": ">=12.0.0"
   },
   "dependencies": {
+    "@yarnpkg/pnpify": "^2.0.0-rc.19",
     "acorn": "^7.1.0",
     "chalk": "^3.0.0",
     "cli-highlight": "^2.1.4",
@@ -23,6 +21,7 @@
     "estraverse": "^4.3.0",
     "mkdirp": "^1.0.3",
     "recast": "^0.18.5",
-    "sync-request": "^6.1.0"
+    "sync-request": "^6.1.0",
+    "typescript": "^3.8.3"
   }
 }
