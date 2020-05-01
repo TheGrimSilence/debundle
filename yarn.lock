@@ -27,6 +27,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/escodegen@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@types/escodegen@npm:0.0.6"
+  checksum: 1f93618f24dcbb0b2bd20ca49d88fa3f0036829883de520d3805392158d71d802682640d504bcf1af71454816d8851845e5ca7c90fb4dc0b5605676af5437f8b
+  languageName: node
+  linkType: hard
+
+"@types/estraverse@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@types/estraverse@npm:0.0.6"
+  dependencies:
+    "@types/estree": "*"
+  checksum: 286382223758fdcb8e2a8a5989a88d33e8f5262f36d2991f1702c4f3da1eb11ee4e710e51b767e135886c160c9172c410012d256b1d1a060322180144e2d3ae8
+  languageName: node
+  linkType: hard
+
+"@types/estree@npm:*":
+  version: 0.0.43
+  resolution: "@types/estree@npm:0.0.43"
+  checksum: e1c53aafcdb4c59211a4924a91403ecdd155c4f9cb7545bd9a14a1750c0df0819d2f157bc491c6e8a271049f0cf57cd76e12f0e01f206645b5fccc5616a5e4ba
+  languageName: node
+  linkType: hard
+
 "@types/form-data@npm:0.0.33":
   version: 0.0.33
   resolution: "@types/form-data@npm:0.0.33"
@@ -40,6 +63,13 @@ __metadata:
   version: 10.17.17
   resolution: "@types/node@npm:10.17.17"
   checksum: 7603f49c5f5adf8813937498ac36c29b5831f602032257cb8937288bfcac4f00dba050d15e2f25d15d17f9374c7ef5bd5f4882ea4868552986b77dc77db4fe3a
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^13.9.2":
+  version: 13.9.2
+  resolution: "@types/node@npm:13.9.2"
+  checksum: 39f379082e1d3bff4be2cc2953de02366b07404a682c54cfb7ecaee2e7eb7e317a221bd97263899d70028b4973fab2986823636f850171cd5b3bfb79363f710d
   languageName: node
   linkType: hard
 
@@ -299,6 +329,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "debundle@workspace:."
   dependencies:
+    "@types/escodegen": ^0.0.6
+    "@types/estraverse": ^0.0.6
+    "@types/node": ^13.9.2
     "@yarnpkg/pnpify": ^2.0.0-rc.19
     acorn: ^7.1.0
     chalk: ^3.0.0

@@ -1,17 +1,35 @@
-const fs = require('fs');
-const path = require('path');
+import acorn from 'acorn';
+import escodegen from 'escodegen';
+import estraverse from 'estraverse';
+import * as fs from 'fs';
+import * as path from 'path';
+import { DEFAULT_CHUNK, DEFAULT_OPTIONS, METADATA_FILE_TEMPLATE } from '../settings';
+import { highlight, parseBundleModules } from '../utils';
+import Chunk from './Chunk';
+import WebpackBootstrap, { WebpackBootstrapNotFoundError } from './WebpackBootstrap';
 
-const acorn = require('acorn');
-const estraverse = require('estraverse');
-const escodegen = require('escodegen');
-
-const { parseBundleModules, highlight } = require('../utils');
-const { DEFAULT_CHUNK, DEFAULT_OPTIONS, METADATA_FILE_TEMPLATE } = require('../settings');
-
-const WebpackBootstrap = require('./WebpackBootstrap');
-const Chunk = require('./Chunk');
 
 class Bundle {
+  distPath: any;
+  fileName
+  metadataFileContents: {};
+  metadataFilePath: string;
+  chunks: Map<any, any>;
+  logIndentLevel: number;
+  _options: {
+    distPath: string;
+    chunkFileNameSuffix: string;
+    publicPathPrefix: string;
+    chunkHttpRequestOptions: {};
+    chunkNameMapping: {};
+  };
+  path;
+  _hooks;
+  moduleTree;
+  webpackBootstrap;
+  _metadataFileExistedAtStartOfProgram;
+  ast;
+
   constructor(p) {
     this.path = p;
     if (!path.isAbsolute(this.path)) {
@@ -20,7 +38,7 @@ class Bundle {
       this.path = path.join(cwd, this.path);
     }
 
-    this.metadataFilePath = path.join(path.dirname(this.path), path.basename(this.path)+'.info');
+    this.metadataFilePath = path.join(path.dirname(this.path), path.basename(this.path) + '.info');
     this.metadataFileContents = {};
 
     this.chunks = new Map();
@@ -51,7 +69,7 @@ class Bundle {
       indent += '  ';
     }
     console.log(`[LOG]${indent}`, ...args);
-  }
+  };
 
   get [Symbol.toStringTag]() {
     return `bundle ${this.path}: ${this.chunks.size} chunks, ${Object.keys(this.modules).length} modules`;
@@ -59,7 +77,7 @@ class Bundle {
 
   parse() {
     const bundleContents = fs.readFileSync(this.path).toString();
-    this.log(`Read bundle ${this.path} (${bundleContents.length} bytes)`)
+    this.log(`Read bundle ${this.path} (${bundleContents.length} bytes)`);
 
     // HOOK: PreParse
     if (this._hooks.preParse) { this._hooks.preParse(this); }
@@ -70,7 +88,7 @@ class Bundle {
     // determined in later code.
     estraverse.traverse(this.ast, {
       fallback: 'iteration',
-      enter: function(node, parent) {
+      enter: function (node, parent) {
         node._parent = parent;
       },
     });
@@ -131,8 +149,8 @@ class Bundle {
       return m;
     }
 
-    return null
-  }
+    return null;
+  };
 
   getChunk = (chunkId) => {
     const chunkById = this.chunks.get(chunkId);
@@ -153,15 +171,15 @@ class Bundle {
     }
 
     return null;
-  }
+  };
   get defaultChunk() { return this.getChunk(DEFAULT_CHUNK); }
-  addChunk = (fileName, bundleModules=null) => {
+  addChunk = (fileName, bundleModules = null) => {
     const chunk = new Chunk(this, fileName, bundleModules);
     chunk.ids.forEach(id => {
       this.chunks.set(id, chunk);
     });
     return chunk;
-  }
+  };
 
   // Get all modules that are at the top level of the bundle (probably just one, but could be
   // multiple in theory)
@@ -181,15 +199,15 @@ class Bundle {
     log(`Looking for webpackBootstrap in bundle...`);
     estraverse.traverse(this.ast.body, {
       fallback: 'iteration',
-      enter: function(node, parent) {
+      enter: function (node, parent) {
         // Looking for this line, which invokes each module closure:
         // > modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
         function findRequireFunction() {
-          let moduleCallNode = null;
+          let moduleCallNode;
 
           estraverse.traverse(node, {
             fallback: 'iteration',
-            enter: function(n) {
+            enter: function (n) {
               const isModuleCallNode = (
                 n.type === 'CallExpression' &&
                 n.callee.type === 'MemberExpression' &&
@@ -225,7 +243,7 @@ class Bundle {
           log(`webpackBootstrap module call expression: ${highlight(escodegen.generate(requireFunction))}`);
           webpackBoostrapModuleCallNode = requireFunction;
           this.break();
-        } 
+        }
       },
     });
 
@@ -241,7 +259,7 @@ class Bundle {
           '',
           `Take a look at the documentation online for more information.`,
         ].join('\n')
-      )
+      );
     }
 
     this.webpackBootstrap = new WebpackBootstrap(webpackBootstrap, webpackBoostrapModuleCallNode);
@@ -256,7 +274,7 @@ class Bundle {
     // Create an object mapping the module id to an object containing the module id, the parent
     // modules, and the vhild modules.
     const tree = Object.fromEntries(
-      this._modulesValues.map(module => [module.id, {
+      this._modulesValues.map((module: any) => [module.id, {
         id: module.id,
         _dependencyIds: module._dependencyModuleIds,
         parents: [],
@@ -266,8 +284,8 @@ class Bundle {
     );
 
     // Loop through each element in the object, populating all the children and parents.
-    Object.values(tree).forEach(item => {
-      item.children = item._dependencyIds.filter(a => a.moduleId !== null).flatMap(({moduleId}) => {
+    Object.values(tree).forEach((item: any) => {
+      item.children = item._dependencyIds.filter(a => a.moduleId !== null).flatMap(({ moduleId }) => {
         if (!tree[moduleId]) {
           tree[moduleId] = { parents: [], children: [], bare: true };
         }
@@ -291,9 +309,9 @@ class Bundle {
           .filter(([key, value]) => DEFAULT_OPTIONS[key] !== value)
       ),
     };
-  }
+  };
 
-  writeMetadataFile(opts={force: false}) {
+  writeMetadataFile(opts = { force: false }) {
     const shouldWrite = !this._metadataFileExistedAtStartOfProgram || opts.force;
 
     if (shouldWrite) {
@@ -324,7 +342,7 @@ class Bundle {
       throw new Error(`Malformed metadata file - module.exports is expected to be an object, not ${typeof metadataClosure}!`);
     }
 
-    const {version, options, hooks} = metadataFileContents;
+    const { version, options, hooks } = metadataFileContents;
 
     if (version !== 1) {
       throw new Error(`Malformed metadata file - metadata file is version ${version}, but this program only knows how to read version 1`);

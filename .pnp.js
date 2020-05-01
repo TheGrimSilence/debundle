@@ -44,9 +44,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       88,
       86,
       84,
+      83,
       82,
       81,
       80,
+      79,
       78,
       77,
       76,
@@ -71,6 +73,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {
           "packageLocation": "./",
           "packageDependencies": [
+            ["@types/escodegen", "npm:0.0.6"],
+            ["@types/estraverse", "npm:0.0.6"],
+            ["@types/node", "npm:13.9.2"],
             ["@yarnpkg/pnpify", "virtual:3363c55579c76b7df579d4165e6ab9b60e32fe43a24b17a39b6ea04b14d386a6207793809abf5482c5c2235e725c08c0089c49754fa0781524f8853c2af7e51b#npm:2.0.0-rc.19"],
             ["acorn", "npm:7.1.1"],
             ["chalk", "npm:3.0.0"],
@@ -115,6 +120,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"
         }]
       ]],
+      ["@types/escodegen", [
+        ["npm:0.0.6", {
+          "packageLocation": "./.yarn/cache/@types-escodegen-npm-0.0.6-417edc4661-1.zip/node_modules/@types/escodegen/",
+          "packageDependencies": [
+            ["@types/escodegen", "npm:0.0.6"]
+          ],
+          "linkType": "HARD"
+        }]
+      ]],
+      ["@types/estraverse", [
+        ["npm:0.0.6", {
+          "packageLocation": "./.yarn/cache/@types-estraverse-npm-0.0.6-fc4ef3ed73-1.zip/node_modules/@types/estraverse/",
+          "packageDependencies": [
+            ["@types/estraverse", "npm:0.0.6"],
+            ["@types/estree", "npm:0.0.43"]
+          ],
+          "linkType": "HARD"
+        }]
+      ]],
+      ["@types/estree", [
+        ["npm:0.0.43", {
+          "packageLocation": "./.yarn/cache/@types-estree-npm-0.0.43-09f437e5da-1.zip/node_modules/@types/estree/",
+          "packageDependencies": [
+            ["@types/estree", "npm:0.0.43"]
+          ],
+          "linkType": "HARD"
+        }]
+      ]],
       ["@types/form-data", [
         ["npm:0.0.33", {
           "packageLocation": "./.yarn/cache/@types-form-data-npm-0.0.33-3cbbcd9710-1.zip/node_modules/@types/form-data/",
@@ -130,6 +163,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-node-npm-10.17.17-34f7f5cd24-1.zip/node_modules/@types/node/",
           "packageDependencies": [
             ["@types/node", "npm:10.17.17"]
+          ],
+          "linkType": "HARD"
+        }],
+        ["npm:13.9.2", {
+          "packageLocation": "./.yarn/cache/@types-node-npm-13.9.2-d069dc6c73-1.zip/node_modules/@types/node/",
+          "packageDependencies": [
+            ["@types/node", "npm:13.9.2"]
           ],
           "linkType": "HARD"
         }],
@@ -422,6 +462,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",
           "packageDependencies": [
             ["debundle", "workspace:."],
+            ["@types/escodegen", "npm:0.0.6"],
+            ["@types/estraverse", "npm:0.0.6"],
+            ["@types/node", "npm:13.9.2"],
             ["@yarnpkg/pnpify", "virtual:3363c55579c76b7df579d4165e6ab9b60e32fe43a24b17a39b6ea04b14d386a6207793809abf5482c5c2235e725c08c0089c49754fa0781524f8853c2af7e51b#npm:2.0.0-rc.19"],
             ["acorn", "npm:7.1.1"],
             ["chalk", "npm:3.0.0"],

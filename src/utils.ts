@@ -1,13 +1,15 @@
-const acorn = require('acorn');
-const escodegen = require('escodegen');
+import acorn from 'acorn';
+import escodegen from 'escodegen';
+import { highlight as cliHighlight } from 'cli-highlight';
 
-const cliHighlight = require('cli-highlight').highlight;
-exports.highlight = (code) => cliHighlight(code, {language: 'javascript', ignoreIllegals: true});
+export const highlight = (code) => cliHighlight(code, { language: 'javascript', ignoreIllegals: true });
 
-exports.ExtendedError = class ExtendedError extends Error {
+export class ExtendedError extends Error {
+  context;
+
   constructor(name, message, ...args /*, context */) {
     let context = {};
-    if (typeof args[args.length-1] !== 'string') {
+    if (typeof args[args.length - 1] !== 'string') {
       context = args.pop();
     }
     let description = args.join('\n');
@@ -19,14 +21,14 @@ exports.ExtendedError = class ExtendedError extends Error {
     this.name = name;
     this.context = context;
   }
-}
+};
 
-exports.cloneAst = (ast) => {
-  return acorn.parse('var a = '+escodegen.generate(ast), {}).body[0].declarations[0].init;
-}
+export const cloneAst = (ast: any) => {
+  return acorn.parse('var a = ' + escodegen.generate(ast), {}).body[0].declarations[0].init;
+};
 
 
-exports.parseBundleModules = function parseBundleModules(node, bundle, isChunk=false) {
+export const parseBundleModules = function parseBundleModules(node, bundle, isChunk = false) {
   if (node.type === 'ObjectExpression') {
     // Object
     return node.properties.map(property => {
@@ -35,10 +37,10 @@ exports.parseBundleModules = function parseBundleModules(node, bundle, isChunk=f
         key,
         property.value,
       ];
-    })
+    });
   } else if (node.type === 'ArrayExpression') {
     // Array
-    return node.elements.map((moduleAst, moduleId) => [moduleId, moduleAst])
+    return node.elements.map((moduleAst, moduleId) => [moduleId, moduleAst]);
   } else {
     throw new ExtendedError('BundleModuleParsingError',
       'Cannot locate modules within bundle - it is not an array or an object!',
@@ -47,7 +49,7 @@ exports.parseBundleModules = function parseBundleModules(node, bundle, isChunk=f
       'is something a bit unusual, and in order to unpack this bundle, a manual path to the',
       'module array must be specified by adding a "moduleClosurePath" key to the "options" object',
       `in the ${bundle.metadataFilePath} file that was created. For more information, see [INSERT LINK HERE].`,
-      {foo: true}
+      { foo: true }
     );
   }
-}
+};

@@ -10,9 +10,21 @@ const { cloneAst, highlight } = require('../utils');
 const { DEFAULT_CHUNK } = require('../settings');
 
 // Thrown when a require function is encountered with multiple arguments
-class RequireFunctionHasMultipleArgumentsError extends Error {}
+class RequireFunctionHasMultipleArgumentsError extends Error { }
 
 class Module {
+  chunk;
+  bundle;
+  id;
+  ast;
+  _packageName;
+  metadataFileConfig;
+  _defaultPath;
+  path;
+  comment;
+  scopeManager;
+  _dependencyModuleIds;
+
   constructor(chunk, moduleId, ast) {
     this.chunk = chunk;
     this.bundle = this.chunk.bundle;
@@ -41,9 +53,9 @@ class Module {
       `Discovered module ${moduleId} `,
       `(chunk ${highlight(JSON.stringify(chunk.ids))}`,
       `${
-        (dependencyModuleIdsRaw.length > 0 ? ', depends on ' : '') +
-        dependencyModuleIdsRaw.slice(0, 3).map(i => chalk.green(i)).join(', ') +
-        (dependencyModuleIdsRaw.length > 3 ? `, and ${dependencyModuleIdsRaw.length-3} more` : '')
+      (dependencyModuleIdsRaw.length > 0 ? ', depends on ' : '') +
+      dependencyModuleIdsRaw.slice(0, 3).map(i => chalk.green(i)).join(', ') +
+      (dependencyModuleIdsRaw.length > 3 ? `, and ${dependencyModuleIdsRaw.length - 3} more` : '')
       })`,
     ].join(''));
     this.bundle.logIndent();
@@ -52,12 +64,12 @@ class Module {
     // add them.
     this._dependencyModuleIds
       .filter(i => i.type === 'REQUIRE_ENSURE')
-      .filter(({chunkId}) => !(
+      .filter(({ chunkId }) => !(
         chunkId === DEFAULT_CHUNK ||
         this.chunk.ids.includes(chunkId) ||
         this.bundle.getChunk(chunkId)
       ))
-      .forEach(({chunkId, moduleId}) => {
+      .forEach(({ chunkId, moduleId }) => {
         this.bundle.log(
           `Module ${this.id} depends on chunk ${chunkId}, parsing new chunk...`
         );
@@ -89,12 +101,12 @@ class Module {
 
 
   get dependencies() {
-    return new Map(this._dependencyModuleIds.filter(a => a.moduleId !== null).map(({moduleId}) => (
+    return new Map(this._dependencyModuleIds.filter(a => a.moduleId !== null).map(({ moduleId }) => (
       [moduleId, this.bundle.getModule(moduleId)]
     )));
   }
 
-  code(opts={renameVariables: true, removeClosure: true}) {
+  code(opts = { renameVariables: true, removeClosure: true }) {
     const originalAst = cloneAst(this.ast);
 
     if (opts.renameVariables) {
@@ -170,7 +182,7 @@ class Module {
     // Rename all instances of the variabl
     variable.identifiers.forEach(ident => {
       ident.name = newName;
-    })
+    });
 
     // Rename all other references of the variable, too
     variable.references.forEach(reference => {
@@ -204,7 +216,7 @@ class Module {
         if (requireArguments.length > 1) {
           throw new RequireFunctionHasMultipleArgumentsError(
             `The require function found at ${reference.identifier.start}-${reference.identifier.end} had more than one argument - it had ${requireArguments.length} (${requireArguments.map(arg => arg.raw).join(', ')})`
-          )
+          );
         }
 
         return {
@@ -225,14 +237,14 @@ class Module {
         requireCallExpression._parent.arguments &&
         requireCallExpression._parent.arguments[0].type === 'Literal'
       );
-        // // Assert Module ID is in the right location
-        // .then(__webpack_require__.bind(null, 4))
-        // requireCallExpression.type === 'MemberExpression' &&
-        // requireCallExpression.property.name === 'bind' &&
-        // requireCallExpression.property.name === 'bind' &&
-        // requireCallExpression._parent.type === 'CallExpression' &&
-        // requireCallExpression._parent.arguments.length === 2 &&
-        // requireCallExpression._parent.arguments[1].type === 'Literal' &&
+      // // Assert Module ID is in the right location
+      // .then(__webpack_require__.bind(null, 4))
+      // requireCallExpression.type === 'MemberExpression' &&
+      // requireCallExpression.property.name === 'bind' &&
+      // requireCallExpression.property.name === 'bind' &&
+      // requireCallExpression._parent.type === 'CallExpression' &&
+      // requireCallExpression._parent.arguments.length === 2 &&
+      // requireCallExpression._parent.arguments[1].type === 'Literal' &&
 
       if (isRequireEnsureCall) {
         const chunkId = requireCallExpression._parent.arguments[0].value;
@@ -307,10 +319,10 @@ class Module {
     }
   }
 
-  async write(opts=undefined) {
+  async write(opts = undefined) {
     let filePath = this.absolutePath;
 
-    await mkdirp(path.dirname(filePath))
+    await mkdirp(path.dirname(filePath));
 
     await fs.promises.writeFile(
       filePath,
@@ -337,4 +349,4 @@ class Module {
   }
 }
 
-module.exports = Module;
+export default Module;

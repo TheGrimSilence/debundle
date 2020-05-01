@@ -1,9 +1,15 @@
+import escope from 'escope';
 const escope = require('escope');
 
-class WebpackBootstrapNotFoundError extends Error {}
-class WebpackBootstrapModuleCallExpressionNotFoundError extends Error {}
+export class WebpackBootstrapNotFoundError extends Error { }
+export class WebpackBootstrapModuleCallExpressionNotFoundError extends Error { }
 
 class WebpackBootstrap {
+  ast;
+  scopeManager;
+  _moduleCallExpression;
+  publicPath;
+
   constructor(ast, moduleCallExpression) {
     this.ast = ast;
     this.scopeManager = escope.analyze(this.ast);
@@ -37,15 +43,15 @@ class WebpackBootstrap {
         node.left.type === 'MemberExpression' &&
         node.left.property.name === propertyName
       );
-    })
+    });
 
     if (!requireFunctionPropertyAssignment) {
       return null;
     }
 
-    const assignedValueAst = requireFunctionPropertyAssignment.identifier._parent._parent.right
+    const assignedValueAst = requireFunctionPropertyAssignment.identifier._parent._parent.right;
     return assignedValueAst;
-  }
+  };
 
   get entrypointModuleId() {
     // Most of the time, this is available within `require.s`. Check there first.
@@ -70,7 +76,7 @@ class WebpackBootstrap {
         node._parent.type === 'CallExpression' &&
         node._parent.callee.name === requireFunctionName
       );
-    })
+    });
 
     if (!requireFunctionPropertyAssignment) {
       return null;
@@ -91,7 +97,7 @@ class WebpackBootstrap {
     const moduleCallExpression = this._moduleCallExpression;
     const [moduleThisValue, ...args] = moduleCallExpression.arguments;
 
-    let paramIndexes = [null, null, null];
+    let paramIndexes: (string | null)[] = [null, null, null];
 
     // First, find `exports`. It will be the only `MemberExpression` in the argument list, since
     // `module.exports` is being passed.
@@ -106,7 +112,7 @@ class WebpackBootstrap {
 
     // Finally, require is the remaining index.
     const requireIndex = paramIndexes.findIndex(i => i === null);
-    paramIndexes[requireIndex] =  'require';
+    paramIndexes[requireIndex] = 'require';
 
     return {
       paramIndexes,
@@ -117,4 +123,4 @@ class WebpackBootstrap {
   }
 }
 
-module.exports = WebpackBootstrap;
+export default WebpackBootstrap;

@@ -1,18 +1,19 @@
-const fs = require('fs');
-const path = require('path');
-
-const acorn = require('acorn');
-const estraverse = require('estraverse');
-
-const request = require('sync-request');
-
-const Module = require('./Module');
-
-const { parseBundleModules } = require('../utils');
-const { DEFAULT_CHUNK } = require('../settings');
+import * as fs from 'fs';
+import * as path from 'path';
+import acorn from 'acorn';
+import estraverse from 'estraverse';
+import request from 'sync-request';
+import Module from './Module';
+import { parseBundleModules } from '../utils';
+import { DEFAULT_CHUNK } from '../settings';
 
 class Chunk {
-  constructor(bundle, fileName, bundleModules=null) {
+  bundle
+  fileName;
+  ids;
+  ast;
+
+  constructor(bundle, fileName, bundleModules = null) {
     this.bundle = bundle;
 
     this.fileName = fileName;
@@ -49,7 +50,7 @@ class Chunk {
       // determined in later code.
       estraverse.traverse(this.ast, {
         fallback: 'iteration',
-        enter: function(node, parent) {
+        enter: function (node, parent) {
           node._parent = parent;
         },
       });
@@ -58,7 +59,7 @@ class Chunk {
 
       estraverse.traverse(this.ast, {
         fallback: 'iteration',
-        enter: function(node, parent) {
+        enter: function (node, parent) {
           const chunkIdArray = (
             node.type === 'ArrayExpression' &&
             node.elements.length > 0 &&
@@ -92,23 +93,23 @@ class Chunk {
         throw new Error(`Could not generate module list for ${this.fileName}`);
       }
 
-      this.ids = chunkIds
+      this.ids = chunkIds;
       bundleModules = parseBundleModules(moduleList, this.bundle, true);
     }
 
     this.modules = new Map(
       bundleModules
-      .flatMap(([moduleId, moduleAst]) => {
-        // Sometimes, modules are null. This is usually because they are a empty / a placeholder
-        // for a module that exists in a different bundle chunk / in a different javascript file.
-        if (moduleAst === null) {
-          return [];
-        } else {
-          return [
-            [moduleId, new Module(this, moduleId, moduleAst)]
-          ];
-        }
-      })
+        .flatMap(([moduleId, moduleAst]) => {
+          // Sometimes, modules are null. This is usually because they are a empty / a placeholder
+          // for a module that exists in a different bundle chunk / in a different javascript file.
+          if (moduleAst === null) {
+            return [];
+          } else {
+            return [
+              [moduleId, new Module(this, moduleId, moduleAst)]
+            ];
+          }
+        })
     );
   }
 
@@ -118,7 +119,7 @@ class Chunk {
 
   get url() {
     let origin = this.bundle.publicPathPrefix;
-    if (origin.length > 0 && !origin.endsWith('/')) { origin += '/' }
+    if (origin.length > 0 && !origin.endsWith('/')) { origin += '/'; }
     return origin + this.bundle.webpackBootstrap.publicPath + this.fileName;
   }
 
@@ -127,4 +128,4 @@ class Chunk {
   }
 }
 
-module.exports = Chunk;
+export default Chunk;
